@@ -131,9 +131,36 @@ projet-stagiaires/
 ├── .env.example                  # Template des variables d'environnement
 ├── tailwind.config.ts            # Configuration Tailwind (couleurs BTS)
 ├── components.json               # Configuration shadcn/ui
-├── REPARTITION_STAGIAIRES.md     # Repartition des taches
+├── REPARTITION_TACHES.md         # Repartition des taches par stagiaire
 └── public/
-    └── logo.png                  # Logo Bridge Technologies Solutions
+    ├── logo.png                  # Logo Bridge Technologies Solutions
+    └── images/                   # Images du site
+        ├── btshomeimage.jpg      # Image Hero homepage
+        ├── scheme1.png           # Image schema homepage
+        ├── tasklist.png          # Image service Gestion projets
+        ├── infrastructure.png    # Image service Infrastructure
+        ├── cloud.png             # Image service Cloud
+        ├── insurance.png         # Image service Protection donnees
+        ├── responsive.png        # Image service DSI externe
+        ├── businessman.png       # Image service Conseils
+        ├── security.jpeg         # Image securite
+        ├── quality.png           # Image valeur Qualite
+        ├── friendship.png        # Image valeur Collaboration
+        ├── certificate.png       # Image valeur Accomplissement
+        ├── assent.jpg            # Image page ASSENT
+        ├── bt-title-assent.png   # Logo ASSENT
+        ├── kyc.jpg               # Image KYC
+        ├── ethique.jpg           # Image ethique
+        ├── reglementaire.jpeg    # Image reglementation
+        ├── cliext.png            # Image clients externes
+        ├── reporting.png         # Image reporting
+        └── partners/             # Logos des partenaires technologiques
+            ├── aws.png, azure.png, gcp.png
+            ├── cisco.png, fortinet.png, paloalto.png, juniper.png
+            ├── hpe.png, dell.png, huawei.png, netapp.png
+            ├── vmware.png, veeam.png, hikvision.png
+            ├── microsoft.png, o365.png, windows.png
+            └── mysql.png, mssql.png, wordpress.png ...
 ```
 
 ### 3.2 Comment Next.js App Router fonctionne
@@ -146,6 +173,7 @@ Fichier                          →  URL
 app/page.tsx                     →  /
 app/contact/page.tsx             →  /contact
 app/blog/page.tsx                →  /blog
+app/assent/page.tsx              →  /assent
 app/admin/page.tsx               →  /admin
 app/admin/contacts/page.tsx      →  /admin/contacts
 app/api/contact/route.ts         →  POST /api/contact
@@ -417,6 +445,7 @@ VALUES ('uuid-copie-ici', 'super_admin', 'Nom Admin', true);
 | Variables CSS | FAIT | Variables de couleur dans `globals.css` |
 | Composants UI | FAIT | 12 composants shadcn/ui (Button, Input, Card, etc.) |
 | Constantes | FAIT | Couleurs, services, navigation, metriques dans `constants.ts` |
+| Images | FAIT | 20 images + 25 logos partenaires dans `public/images/` |
 
 ### 6.2 Backend / Infrastructure (100%)
 
@@ -445,30 +474,139 @@ Toutes les pages existent avec des TODO detailles mais le contenu est a implemen
 
 | Page | URL | Statut |
 |------|-----|--------|
-| Homepage | `/` | PLACEHOLDER avec TODO |
-| Contact | `/contact` | PLACEHOLDER avec TODO |
-| Entreprise | `/entreprise` | PLACEHOLDER avec TODO |
-| Equipe | `/equipe` | PLACEHOLDER avec TODO |
-| Services | `/services` | PLACEHOLDER avec TODO |
-| Blog | `/blog` | PLACEHOLDER avec TODO |
-| FAQ | `/faq` | PLACEHOLDER avec TODO |
-| Projets | `/projets` | PLACEHOLDER avec TODO |
-| Login | `/login` | PLACEHOLDER avec TODO |
-| Admin Dashboard | `/admin` | PLACEHOLDER avec requireAuth() |
-| Admin Contacts | `/admin/contacts` | PLACEHOLDER avec requireAuth() |
-| Admin Newsletter | `/admin/newsletter` | PLACEHOLDER avec requireAuth() |
-| Admin Blog | `/admin/blog` | PLACEHOLDER avec requireAuth() |
-| Admin Projects | `/admin/projects` | PLACEHOLDER avec requireAuth() |
-| Admin Team | `/admin/team` | PLACEHOLDER avec requireAuth() |
-| Admin Services | `/admin/services` | PLACEHOLDER avec requireAuth() |
-| Admin Settings | `/admin/settings` | PLACEHOLDER avec requireAuth() |
-| Admin Layout | `/admin/*` | PLACEHOLDER (sidebar a creer) |
+| Homepage | `/` | A FAIRE (Stagiaire 1) |
+| Entreprise | `/entreprise` | A FAIRE (Stagiaire 1) |
+| Services (liste) | `/services` | A FAIRE (Stagiaire 2) |
+| Service (detail) | `/services/[slug]` | A FAIRE (Stagiaire 2) |
+| FAQ | `/faq` | A FAIRE (Stagiaire 2) |
+| Contact | `/contact` | A FAIRE (Stagiaire 3) |
+| Login | `/login` | A FAIRE (Stagiaire 3) |
+| **ASSENT** | `/assent` | **FAIT** (page complete avec 7 sections + images) |
+| Admin (toutes pages) | `/admin/*` | REPORTÉ (Phase 4, a la fin) |
+
+> **Pages reportees** : Equipe (`/equipe`), Projets (`/projets`), Blog (`/blog`) seront ajoutees dans une phase ulterieure.
 
 ---
 
-## 7. Comment Travailler sur le Projet
+## 7. Page ASSENT - Produit Phare de BTS
 
-### 7.1 Installation
+### C'est quoi ASSENT ?
+
+ASSENT est un **produit logiciel** developpe par Bridge Technologies Solutions pour le **secteur bancaire**. C'est une solution de gestion de la conformite bancaire.
+
+Cette page est **deja implementee** (`app/assent/page.tsx`) et ne necessite pas de modification majeure.
+
+### Modules d'ASSENT
+
+| Module | Description |
+|--------|-------------|
+| **Conformite bancaire** | Gestion unifiee de la conformite reglementaire |
+| **KYC** (Know Your Customer) | Gestion centralisee des dossiers client, alertes, archivage |
+| **Ethique** | Gestion des conflits d'interets, cadeaux, declarations de soupcons |
+| **Reglements** | Recensement des textes reglementaires (COBAC, BEAC, BCEAO) |
+| **Clients Externes** | Gestion des clients non bancarises |
+| **Reporting** | Tableaux de bord, graphes, exports PDF/Word/Excel |
+
+### Structure de la page
+
+La page alterne entre sections blanches et grises, avec :
+- Texte a gauche / Image a droite (et inversement)
+- Listes a puces avec icones check vertes
+- Un Call-to-Action final (telechargement brochure + lien contact)
+
+### Images associees
+
+Toutes dans `public/images/` :
+- `bt-title-assent.png` - Logo/titre ASSENT
+- `assent.jpg` - Image principale conformite
+- `kyc.jpg` - Image KYC
+- `ethique.jpg` - Image ethique
+- `reglementaire.jpeg` - Image reglementation
+- `cliext.png` - Image clients externes
+- `reporting.png` - Image reporting
+
+### Navigation
+
+La page ASSENT est accessible via la barre de navigation avec un badge "New" :
+```typescript
+// Dans lib/constants.ts
+{ label: "Assent", href: "/assent", badge: "New" }
+```
+
+> **Note aux stagiaires** : Quand vous creerez le Header, n'oubliez pas d'afficher ce badge "New" a cote du lien Assent dans la navigation.
+
+---
+
+## 8. Images Disponibles
+
+Toutes les images sont dans `public/images/`. Pour les utiliser dans le code :
+
+```tsx
+// Avec le composant Image de Next.js
+import Image from "next/image";
+<Image src="/images/cloud.png" alt="Cloud" width={400} height={300} />
+
+// Ou en CSS/Tailwind (fond)
+<div style={{ backgroundImage: "url(/images/btshomeimage.jpg)" }} />
+```
+
+### 8.1 Images des services
+
+Chaque service a une image associee (utilisee dans les cartes sur la homepage et les pages detail) :
+
+| Service | Image | Chemin |
+|---------|-------|--------|
+| Gestion des projets | tasklist.png | `/images/tasklist.png` |
+| Infrastructure informatique | infrastructure.png | `/images/infrastructure.png` |
+| Solutions cloud computing | cloud.png | `/images/cloud.png` |
+| Protection / Securite des donnees | insurance.png | `/images/insurance.png` |
+| DSI externe | responsive.png | `/images/responsive.png` |
+| Conseils / Consultants | businessman.png | `/images/businessman.png` |
+
+> Ces chemins sont deja definis dans `lib/constants.ts` → `SERVICES[].image`
+
+### 8.2 Images des valeurs
+
+| Valeur | Image | Chemin |
+|--------|-------|--------|
+| Qualite | quality.png | `/images/quality.png` |
+| Collaboration | friendship.png | `/images/friendship.png` |
+| Accomplissement | certificate.png | `/images/certificate.png` |
+
+> Ces chemins sont deja definis dans `lib/constants.ts` → `VALUES[].image`
+
+### 8.3 Images generales
+
+| Image | Utilisation | Chemin |
+|-------|-------------|--------|
+| btshomeimage.jpg | Hero de la homepage (fond) | `/images/btshomeimage.jpg` |
+| scheme1.png | Schema/illustration homepage | `/images/scheme1.png` |
+| security.jpeg | Section securite | `/images/security.jpeg` |
+
+### 8.4 Logos partenaires
+
+25 logos dans `public/images/partners/`. Utilisation :
+
+```tsx
+// Exemple pour afficher les logos partenaires
+const partners = ["aws", "azure", "cisco", "fortinet", "hpe", "dell", "vmware", "veeam"];
+
+{partners.map(name => (
+  <Image key={name} src={`/images/partners/${name}.png`} alt={name} width={100} height={60} />
+))}
+```
+
+Liste complete : aws, azure, gcp, cisco, fortinet, paloalto, juniper, hpe, dell, huawei, netapp, vmware, veeam, hikvision, microsoft, o365, windows, mysql, mssql, wordpress, mikrotik, msex, mshyperv, Synology
+
+### 8.5 Images page ASSENT (deja utilisees)
+
+assent.jpg, bt-title-assent.png, kyc.jpg, ethique.jpg, reglementaire.jpeg, cliext.png, reporting.png
+
+---
+
+## 9. Comment Travailler sur le Projet
+
+### 9.1 Installation
 
 ```bash
 # 1. Cloner le projet
@@ -490,7 +628,7 @@ npm run dev
 # Ouvrir http://localhost:3000
 ```
 
-### 7.2 Workflow Git
+### 9.2 Workflow Git
 
 ```bash
 # 1. Creer sa branche depuis main
@@ -519,7 +657,7 @@ git push origin feature/ma-fonctionnalite
 - `style: ...` → changement de style/CSS
 - `refactor: ...` → reorganisation du code
 
-### 7.3 Creer une nouvelle page publique
+### 9.3 Creer une nouvelle page publique
 
 Exemple : creer la page Blog (`/blog`)
 
@@ -564,7 +702,7 @@ export default async function BlogPage() {
 }
 ```
 
-### 7.4 Creer une page admin
+### 9.4 Creer une page admin
 
 Exemple : creer la page Gestion Blog
 
@@ -646,7 +784,7 @@ export default async function AdminBlogPage() {
 }
 ```
 
-### 7.5 Creer un formulaire (Client Component)
+### 9.5 Creer un formulaire (Client Component)
 
 Exemple : formulaire de creation d'article
 
@@ -731,7 +869,7 @@ export default function NewBlogPost() {
 
 ---
 
-## 8. Composants UI Disponibles
+## 10. Composants UI Disponibles
 
 Les composants suivants sont deja installes dans `components/ui/` et prets a utiliser :
 
@@ -806,7 +944,7 @@ Liste complete des icones : https://lucide.dev/icons/
 
 ---
 
-## 9. Constantes Importantes
+## 11. Constantes Importantes
 
 Le fichier `lib/constants.ts` contient toutes les informations reutilisables :
 
@@ -843,7 +981,7 @@ import { COMPANY, SERVICES, COLORS, NAV_ITEMS, METRICS, VALUES } from "@/lib/con
 
 ---
 
-## 10. Classes Tailwind CSS les Plus Utilisees
+## 12. Classes Tailwind CSS les Plus Utilisees
 
 ```
 LAYOUT :
@@ -883,7 +1021,7 @@ RESPONSIVE :
 
 ---
 
-## 11. Commandes Utiles
+## 13. Commandes Utiles
 
 ```bash
 npm run dev       # Lancer le serveur de developpement (http://localhost:3000)
@@ -894,7 +1032,7 @@ npm run start     # Lancer la version de production (apres build)
 
 ---
 
-## 12. Erreurs Courantes et Solutions
+## 14. Erreurs Courantes et Solutions
 
 ### Erreur : "Cannot find module 'clsx'"
 ```bash
@@ -931,7 +1069,7 @@ Verifie que tu as bien `await requireAuth()` au debut de ta page admin.
 
 ---
 
-## 13. Ressources
+## 15. Ressources
 
 - **Next.js** : https://nextjs.org/docs
 - **Supabase** : https://supabase.com/docs
