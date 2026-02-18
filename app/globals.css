@@ -284,3 +284,32 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-dark);
 }
+.hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(135deg, #0088C1, #005A80);
+  color: white;
+}
+
+.hero-content {
+  max-width: 800px;
+}
+
+.cta-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: #0088C1;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #005A80;
+}
