@@ -457,8 +457,33 @@ Padding conteneur      : px-4 sm:px-6 lg:px-8
 Largeur max conteneur  : max-w-7xl mx-auto
 Espace entre cartes    : gap-6 ou gap-8
 Padding interne carte  : p-6 ou p-8
-Padding top page       : pt-20 (pour le header fixe)
 ```
+
+> **IMPORTANT** : Ne pas ajouter `pt-20` au debut de vos pages !
+> Le composant `PublicLayout` (dans `components/layout/PublicLayout.tsx`) gere automatiquement l'espacement pour le header fixe. Vos pages commencent directement leur contenu sans avoir a compenser le header.
+
+### 5.5 PIEGE CSS Tailwind v4 - Ne jamais ecrire ceci dans globals.css
+
+```css
+/* ❌ MAUVAIS - cette regle non-layered ecrase TOUS les m-*, p-* de Tailwind */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* ❌ MAUVAIS - cette regle ecrase text-white sur les boutons */
+a {
+  color: #0088c1;
+}
+
+/* ✅ TOUJOURS mettre les styles d'elements dans @layer base */
+@layer base {
+  * { margin: 0; padding: 0; }
+  a { text-decoration: none; }
+}
+```
+
+Raison technique : En Tailwind CSS v4, les utilities (`mb-4`, `p-6`, `text-white`) sont dans `@layer utilities`. Les regles CSS non-layered ont une priorite superieure aux layers, donc elles ecrasent les classes Tailwind, meme si elles ont une specificite plus faible.
 
 ---
 

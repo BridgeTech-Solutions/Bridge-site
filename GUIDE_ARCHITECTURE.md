@@ -44,13 +44,16 @@ Bridge Technologies Solutions (BTS) est une entreprise de solutions technologiqu
 
 | Technologie | Version | Role |
 |-------------|---------|------|
-| **Next.js** | 15+ | Framework React (App Router) |
+| **Next.js** | 16+ | Framework React (App Router) |
 | **TypeScript** | 5+ | Langage (typage statique) |
-| **Tailwind CSS** | 3+ | Styles (classes utilitaires) |
+| **Tailwind CSS** | 4+ | Styles (classes utilitaires) |
 | **Supabase** | - | Base de donnees PostgreSQL + Auth |
 | **Lucide React** | - | Icones (SVG) |
 | **Framer Motion** | - | Animations |
 | **date-fns** | - | Formatage des dates |
+| **Montserrat** | Google Fonts | Police officielle BTS (chargee via next/font) |
+
+> **Important Tailwind v4** : Les styles CSS personnels dans `globals.css` DOIVENT etre places dans `@layer base {}` ou `@layer utilities {}` pour que les classes Tailwind (margin, padding, couleurs...) puissent les ecraser. Une regle non-layered ecrase automatiquement toutes les utilities Tailwind.
 
 ### Pourquoi ces choix ?
 
@@ -112,7 +115,11 @@ projet-stagiaires/
 │   │   ├── skeleton.tsx          # Placeholder de chargement
 │   │   ├── toast.tsx             # Notification
 │   │   └── dropdown-menu.tsx     # Menu deroulant
-│   ├── layout/                   # Header, Footer, PageHeader (A CREER)
+│   ├── layout/                   # Composants de mise en page
+│   │   ├── Header.tsx            # FAIT - Navbar fixe, dropdown services, menu mobile
+│   │   ├── Footer.tsx            # FAIT - Footer sombre 4 colonnes + newsletter
+│   │   ├── PublicLayout.tsx      # FAIT - Wrapper qui affiche Header+Footer sur pages publiques
+│   │   └── PageHeader.tsx        # A FAIRE - Banniere de titre pour chaque page
 │   ├── home/                     # Composants de la homepage (A CREER)
 │   └── admin/                    # Composants du dashboard (A CREER)
 │
@@ -134,33 +141,97 @@ projet-stagiaires/
 ├── REPARTITION_TACHES.md         # Repartition des taches par stagiaire
 └── public/
     ├── logo.png                  # Logo Bridge Technologies Solutions
-    └── images/                   # Images du site
-        ├── btshomeimage.jpg      # Image Hero homepage
-        ├── scheme1.png           # Image schema homepage
-        ├── tasklist.png          # Image service Gestion projets
-        ├── infrastructure.png    # Image service Infrastructure
-        ├── cloud.png             # Image service Cloud
-        ├── insurance.png         # Image service Protection donnees
-        ├── responsive.png        # Image service DSI externe
-        ├── businessman.png       # Image service Conseils
-        ├── security.jpeg         # Image securite
-        ├── quality.png           # Image valeur Qualite
-        ├── friendship.png        # Image valeur Collaboration
-        ├── certificate.png       # Image valeur Accomplissement
-        ├── assent.jpg            # Image page ASSENT
-        ├── bt-title-assent.png   # Logo ASSENT
-        ├── kyc.jpg               # Image KYC
-        ├── ethique.jpg           # Image ethique
-        ├── reglementaire.jpeg    # Image reglementation
-        ├── cliext.png            # Image clients externes
-        ├── reporting.png         # Image reporting
-        └── partners/             # Logos des partenaires technologiques
-            ├── aws.png, azure.png, gcp.png
-            ├── cisco.png, fortinet.png, paloalto.png, juniper.png
-            ├── hpe.png, dell.png, huawei.png, netapp.png
-            ├── vmware.png, veeam.png, hikvision.png
-            ├── microsoft.png, o365.png, windows.png
-            └── mysql.png, mssql.png, wordpress.png ...
+    └── images/                   # Toutes les images (copiees depuis l'ancien site PHP)
+        │
+        ├── -- SERVICES --
+        ├── tasklist.png          # Gestion des projets
+        ├── infrastructure.png    # Infrastructure informatique
+        ├── cloud.png             # Cloud computing
+        ├── insurance.png         # Protection des donnees
+        ├── responsive.png        # DSI externe
+        ├── businessman.png       # Conseils / Consultants
+        ├── gestproj.png          # Gestion de projet (variante)
+        ├── consulting.png        # Consulting
+        │
+        ├── -- HOMEPAGE --
+        ├── btshomeimage.jpg      # Image Hero (fond banniere)
+        ├── bg2.jpg               # Image fond alternative
+        ├── scheme.png            # Schema illustration
+        ├── scheme1.png           # Schema illustration variante
+        ├── ban-min.png           # Banniere
+        ├── ban2.png              # Banniere variante
+        │
+        ├── -- VALEURS --
+        ├── quality.png           # Valeur Qualite
+        ├── friendship.png        # Valeur Collaboration
+        ├── certificate.png       # Valeur Accomplissement
+        │
+        ├── -- SERVICES DETAIL --
+        ├── security.jpeg         # Securite des donnees
+        ├── cloudnet.png          # Reseau cloud
+        ├── noc.jpg               # Centre operations reseau
+        ├── iminfinf2.png         # Infrastructure
+        ├── symetric.png          # Symetrie/securite
+        ├── audit.png             # Audit
+        ├── benefits.png          # Avantages
+        ├── advantages.png        # Avantages (variante)
+        ├── speed.png             # Performance
+        ├── speedometer.png       # Compteur de vitesse
+        ├── advice.png            # Conseils
+        ├── research.png          # Recherche
+        │
+        ├── -- TITRES DE PAGES (bannieres) --
+        ├── bt-title-assent.png       # Titre page ASSENT
+        ├── bt-title-cloud.png        # Titre page Cloud
+        ├── bt-title-infrastructure.png # Titre page Infrastructure
+        ├── bt-title-protection.png   # Titre page Protection
+        ├── bt-title-dsi.png          # Titre page DSI
+        ├── bt-title-conseils.png     # Titre page Conseils
+        ├── bt-title-project.png      # Titre page Projets
+        ├── bt-title-entreprise.png   # Titre page Entreprise
+        ├── bt-title-contact.png      # Titre page Contact
+        │
+        ├── -- PAGE ASSENT --
+        ├── assent.jpg            # Conformite bancaire
+        ├── kyc.jpg               # KYC
+        ├── kyc_.jpeg             # KYC (variante)
+        ├── kyc__.jpg             # KYC (variante 2)
+        ├── kyc.avif              # KYC (format moderne)
+        ├── ethique.jpg           # Ethique
+        ├── reglementaire.jpeg    # Reglementation
+        ├── cliext.png            # Clients externes
+        ├── reporting.png         # Reporting
+        │
+        ├── -- AUTRES --
+        ├── logo.png              # Logo BTS (aussi dans /public/logo.png)
+        ├── customer.png          # Client
+        ├── customer-service.png  # Service client
+        ├── help.png              # Aide
+        ├── share.png             # Partage
+        ├── exchange.png          # Echange
+        ├── link.png              # Lien
+        ├── pie.png               # Graphique circulaire
+        ├── 3d.png                # Illustration 3D
+        ├── settings.png          # Parametres
+        ├── mon.jfif              # Moniteur
+        ├── partners.JPG          # Photo partenaires
+        ├── partners.webp         # Photo partenaires (webp)
+        ├── veeamcc.png           # Veeam Cloud Connect
+        ├── veeambr.png           # Veeam Backup & Replication
+        │
+        ├── partners/             # Logos partenaires (depuis bridge-site)
+        │   └── aws, azure, gcp, cisco, fortinet, paloalto, juniper,
+        │       hpe, dell, huawei, netapp, vmware, veeam, hikvision,
+        │       microsoft, o365, windows, mysql, mssql, wordpress...
+        │
+        ├── parts/                # Logos partenaires (depuis ancien site PHP)
+        │   └── memes logos que partners/ (25 fichiers)
+        │
+        ├── overlays/             # Overlays de couleur (01.png a 09.png)
+        ├── lightbox/             # UI lightbox (galerie images)
+        ├── svg/                  # Icones SVG (arrow_left, arrow_right)
+        └── video/
+            └── hny.mp4           # Video (ancienne utilisation)
 ```
 
 ### 3.2 Comment Next.js App Router fonctionne
@@ -439,13 +510,19 @@ VALUES ('uuid-copie-ici', 'super_admin', 'Nom Admin', true);
 
 | Element | Statut | Description |
 |---------|--------|-------------|
-| Projet Next.js 15 | FAIT | Cree avec `create-next-app`, TypeScript, Tailwind |
+| Projet Next.js | FAIT | Cree avec `create-next-app`, TypeScript, Tailwind |
 | Dependances | FAIT | Supabase, Lucide, date-fns, Framer Motion, shadcn/ui |
 | Tailwind Config | FAIT | Couleurs BTS, fonts, animations personnalisees |
-| Variables CSS | FAIT | Variables de couleur dans `globals.css` |
+| Variables CSS | FAIT | Variables de couleur dans `globals.css` (styles en `@layer base`) |
 | Composants UI | FAIT | 12 composants shadcn/ui (Button, Input, Card, etc.) |
 | Constantes | FAIT | Couleurs, services, navigation, metriques dans `constants.ts` |
-| Images | FAIT | 20 images + 25 logos partenaires dans `public/images/` |
+| Images | FAIT | 60+ images + 25 logos partenaires dans `public/images/` |
+| **Font Montserrat** | **FAIT** | Chargee dans `app/layout.tsx` via `next/font/google` |
+| **Header** | **FAIT** | Navbar fixe, dropdown services avec icones, menu mobile accordeon |
+| **Footer** | **FAIT** | 4 colonnes : logo+socials, liens, contact, newsletter avec validation |
+| **PublicLayout** | **FAIT** | Auto-affiche Header+Footer sur pages publiques, masque sur /admin et /login |
+| **globals.css** | **CORRIGE** | Base styles dans `@layer base`, dark mode desactive, conflits cascade resolus |
+| **app/layout.tsx** | **FAIT** | Metadata BTS, Montserrat, `lang="fr"`, PublicLayout |
 
 ### 6.2 Backend / Infrastructure (100%)
 
@@ -527,13 +604,7 @@ Toutes dans `public/images/` :
 
 ### Navigation
 
-La page ASSENT est accessible via la barre de navigation avec un badge "New" :
-```typescript
-// Dans lib/constants.ts
-{ label: "Assent", href: "/assent", badge: "New" }
-```
-
-> **Note aux stagiaires** : Quand vous creerez le Header, n'oubliez pas d'afficher ce badge "New" a cote du lien Assent dans la navigation.
+La page ASSENT est accessible via la barre de navigation avec un badge "New". Le Header est deja implemente et affiche ce badge automatiquement (`components/layout/Header.tsx`).
 
 ---
 
@@ -575,30 +646,72 @@ Chaque service a une image associee (utilisee dans les cartes sur la homepage et
 
 > Ces chemins sont deja definis dans `lib/constants.ts` → `VALUES[].image`
 
-### 8.3 Images generales
+### 8.3 Images homepage
 
 | Image | Utilisation | Chemin |
 |-------|-------------|--------|
-| btshomeimage.jpg | Hero de la homepage (fond) | `/images/btshomeimage.jpg` |
-| scheme1.png | Schema/illustration homepage | `/images/scheme1.png` |
-| security.jpeg | Section securite | `/images/security.jpeg` |
+| btshomeimage.jpg | Hero banniere (fond) | `/images/btshomeimage.jpg` |
+| bg2.jpg | Fond alternatif | `/images/bg2.jpg` |
+| scheme1.png | Schema illustration | `/images/scheme1.png` |
+| ban-min.png | Banniere compresse | `/images/ban-min.png` |
 
-### 8.4 Logos partenaires
+### 8.4 Images generales et services detail
 
-25 logos dans `public/images/partners/`. Utilisation :
+| Image | Utilisation |
+|-------|-------------|
+| security.jpeg | Section securite des donnees |
+| cloudnet.png | Illustration reseau cloud |
+| noc.jpg | Centre operations reseau |
+| audit.png | Audit et conformite |
+| benefits.png / advantages.png | Avantages du service |
+| speed.png / speedometer.png | Performance |
+| advice.png / research.png | Conseils et recherche |
+| customer.png / customer-service.png | Client / SAV |
+
+### 8.5 Bannieres de titre par page
+
+Chaque page de service a sa propre banniere de titre :
+
+| Page | Image banniere |
+|------|----------------|
+| ASSENT | `/images/bt-title-assent.png` |
+| Cloud | `/images/bt-title-cloud.png` |
+| Infrastructure | `/images/bt-title-infrastructure.png` |
+| Protection | `/images/bt-title-protection.png` |
+| DSI externe | `/images/bt-title-dsi.png` |
+| Conseils | `/images/bt-title-conseils.png` |
+| Projets | `/images/bt-title-project.png` |
+| Entreprise | `/images/bt-title-entreprise.png` |
+| Contact | `/images/bt-title-contact.png` |
+
+### 8.6 Logos partenaires
+
+Deux dossiers contiennent les logos partenaires :
+- `public/images/partners/` (depuis bridge-site)
+- `public/images/parts/` (depuis l'ancien site PHP)
+
+Les deux ont les memes logos. Utiliser `parts/` de preference :
 
 ```tsx
-// Exemple pour afficher les logos partenaires
-const partners = ["aws", "azure", "cisco", "fortinet", "hpe", "dell", "vmware", "veeam"];
+const logos = [
+  "aws", "azure", "gcp", "cisco", "fortinet", "paloalto", "juniper",
+  "hpe", "dell", "huawei", "netapp", "veeam", "hikvision",
+  "microsoft", "o365", "windows", "mysql", "mssql", "wordpress", "mikrotik"
+];
 
-{partners.map(name => (
-  <Image key={name} src={`/images/partners/${name}.png`} alt={name} width={100} height={60} />
+{logos.map(name => (
+  <Image
+    key={name}
+    src={`/images/parts/${name}.png`}
+    alt={name}
+    width={100}
+    height={60}
+    className="object-contain grayscale hover:grayscale-0 transition"
+  />
 ))}
 ```
 
-Liste complete : aws, azure, gcp, cisco, fortinet, paloalto, juniper, hpe, dell, huawei, netapp, vmware, veeam, hikvision, microsoft, o365, windows, mysql, mssql, wordpress, mikrotik, msex, mshyperv, Synology
-
-### 8.5 Images page ASSENT (deja utilisees)
+### 8.7 Images page ASSENT (deja utilisees)
 
 assent.jpg, bt-title-assent.png, kyc.jpg, ethique.jpg, reglementaire.jpeg, cliext.png, reporting.png
 
@@ -675,8 +788,11 @@ export default async function BlogPage() {
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
+  // IMPORTANT : Ne pas ajouter pt-20 ici !
+  // PublicLayout s'en charge automatiquement (header fixe de 80px).
+  // Commencez directement votre contenu.
   return (
-    <main className="pt-20 px-4">
+    <div className="px-4 py-12">
       {/* 2. Titre de la page */}
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">Blog</h1>
@@ -697,7 +813,7 @@ export default async function BlogPage() {
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 ```
@@ -1034,6 +1150,32 @@ npm run start     # Lancer la version de production (apres build)
 
 ## 14. Erreurs Courantes et Solutions
 
+### PIEGE : Les classes Tailwind (margin, padding, color) ne s'appliquent pas
+
+**Symptomes** : `mb-4`, `p-6`, `text-white`, `text-gray-600` semblent ignores. Le site a un rendu bizarre meme avec les bonnes classes.
+
+**Cause** : En Tailwind CSS v4, les utilities sont dans `@layer utilities`. Une regle CSS **non-layered** dans `globals.css` ecrase automatiquement toutes les utilities.
+
+```css
+/* ❌ MAUVAIS - cette regle ecrase tous les mb-*, p-*, etc. */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* ✅ BON - dans un layer, Tailwind peut l'ecraser */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+```
+
+**Regle** : Dans `globals.css`, toujours mettre les styles d'elements (`*`, `body`, `h1-h6`, `a`, `button`) dans `@layer base {}`.
+
+---
+
 ### Erreur : "Cannot find module 'clsx'"
 ```bash
 npm install clsx tailwind-merge
@@ -1080,5 +1222,5 @@ Verifie que tu as bien `await requireAuth()` au debut de ta page admin.
 
 ---
 
-*Document cree le 16 fevrier 2026 - Bridge Technologies Solutions*
-*Pour toute question, contacter le responsable du projet.*
+*Document cree le 16 fevrier 2026 - Mis a jour le 18 fevrier 2026*
+*Bridge Technologies Solutions - Pour toute question, contacter le responsable du projet.*
