@@ -1,37 +1,59 @@
-/**
- * API ROUTE - INSCRIPTION NEWSLETTER
- *
- * TODO :
- * - Recevoir l'email
- * - Vérifier si l'email existe déjà dans Supabase
- * - Si oui et désabonné → réactiver
- * - Si non → insérer nouveau
- * - Retourner réponse JSON
- *
- * Méthode : POST
- * Body : { email }
- * Table Supabase : newsletters
- */
-
+import { createAdminClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const { email, source } = await request.json();
 
-    // TODO: Valider l'email
-    // TODO: Vérifier doublon dans Supabase
-    // TODO: Insérer ou réactiver
-    // TODO: Retourner la réponse
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Email invalide" }, { status: 400 });
+    }
 
-    return NextResponse.json(
-      { message: "À implémenter" },
-      { status: 501 }
-    );
-  } catch {
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    const normalizedEmail = email.trim().toLowerCase();
+    const supabase = createAdminClient();
+
+    // Vérifier si l'email existe déjà
+    const { data: existing } = await supabase
+      .from("newsletters")
+      .select("id, status")
+      .eq("email", normalizedEmail)
+      .single();
+
+    if (existing) {
+      if (existing.status === "active") {
+        // Déjà abonné — on renvoie success sans dupliquer
+        return NextResponse.json({ success: true, already: true });
+      }
+      // Désabonné ou bounced → réactiver
+      const { error } = await supabase
+        .from("newsletters")
+        .update({ status: "active", unsubscribed_at: null })
+        .eq("id", existing.id);
+
+      if (error) {
+        console.error("Newsletter reactivate error:", error);
+        return NextResponse.json({ error: "Erreur lors de l'inscription" }, { status: 500 });
+      }
+      return NextResponse.json({ success: true, reactivated: true });
+    }
+
+    // Nouvel abonné
+    const { error } = await supabase
+      .from("newsletters")
+      .insert({
+        email: normalizedEmail,
+        status: "active",
+        source: source ?? "footer",
+      });
+
+    if (error) {
+      console.error("Newsletter insert error:", error);
+      return NextResponse.json({ error: "Erreur lors de l'inscription" }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Newsletter API error:", err);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

@@ -18,8 +18,8 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isAdmin = pathname.startsWith("/admin");
-  const isLogin = pathname === "/login";
-  const showPublicLayout = !isAdmin && !isLogin;
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/auth");
+  const showPublicLayout = !isAdmin && !isAuthPage;
 
   if (!showPublicLayout) {
     return <>{children}</>;

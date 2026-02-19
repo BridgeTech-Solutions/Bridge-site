@@ -1,32 +1,267 @@
-/**
- * DASHBOARD ADMIN - Bridge Technologies Solutions
- *
- * TODO Stagiaire 3 :
- * - Cards de statistiques (total contacts, abonnés newsletter, articles blog, projets)
- * - Récupérer les données depuis Supabase (count sur chaque table)
- * - Liste des contacts récents
- * - Actions rapides (liens vers les autres pages admin)
- * - Graphiques optionnels (chart.js ou recharts)
- *
- * Requêtes Supabase nécessaires :
- * - supabase.from('contacts').select('*', { count: 'exact', head: true })
- * - supabase.from('newsletters').select('*', { count: 'exact', head: true })
- * - supabase.from('blog_posts').select('*', { count: 'exact', head: true })
- * - supabase.from('projects').select('*', { count: 'exact', head: true })
- * - supabase.from('contacts').select('*').order('created_at', { ascending: false }).limit(5)
- *
- * Auth : Utiliser requireAuth() de lib/auth/auth.ts (Server Component)
- */
-
 import { requireAuth } from "@/lib/auth/auth";
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import {
+  Mail,
+  Bell,
+  Users,
+  Briefcase,
+  TrendingUp,
+  ExternalLink,
+  ChevronRight,
+  Clock,
+} from "lucide-react";
+
+export const metadata = { title: "Dashboard — Admin BTS" };
 
 export default async function AdminDashboard() {
   await requireAuth();
 
+  const supabase = await createClient();
+
+  // Stats depuis Supabase
+  const [
+    { count: totalContacts },
+    { count: unreadContacts },
+    { count: totalNewsletter },
+    { count: activeNewsletter },
+    { count: totalTeam },
+    { data: recentContacts },
+  ] = await Promise.all([
+    supabase.from("contacts").select("*", { count: "exact", head: true }),
+    supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "new"),
+    supabase.from("newsletters").select("*", { count: "exact", head: true }),
+    supabase.from("newsletters").select("*", { count: "exact", head: true }).eq("status", "active"),
+    supabase.from("team_members").select("*", { count: "exact", head: true }).eq("status", "published"),
+    supabase
+      .from("contacts")
+      .select("id, name, email, subject, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
+
+  const stats = [
+    {
+      label: "Messages reçus",
+      value: totalContacts ?? 0,
+      sub: `${unreadContacts ?? 0} non lu${(unreadContacts ?? 0) > 1 ? "s" : ""}`,
+      icon: Mail,
+      href: "/admin/contacts",
+      color: "text-[#0088C1]",
+      bg: "bg-[#0088C1]/10",
+      urgent: (unreadContacts ?? 0) > 0,
+    },
+    {
+      label: "Abonnés newsletter",
+      value: activeNewsletter ?? 0,
+      sub: `${totalNewsletter ?? 0} au total`,
+      icon: Bell,
+      href: "/admin/newsletter",
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      urgent: false,
+    },
+    {
+      label: "Membres de l'équipe",
+      value: totalTeam ?? 0,
+      sub: "membres actifs",
+      icon: Users,
+      href: "/admin/team",
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+      urgent: false,
+    },
+    {
+      label: "Services actifs",
+      value: 6,
+      sub: "services BTS",
+      icon: Briefcase,
+      href: "/admin/services",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      urgent: false,
+    },
+  ];
+
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-      <p>À implémenter - Voir les TODO ci-dessus</p>
+    <div className="space-y-8 max-w-6xl">
+
+      {/* En-tête */}
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900">Bonjour 👋</h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Voici un aperçu de votre site Bridge Technologies Solutions.
+        </p>
+      </div>
+
+      {/* Cartes statistiques */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Link
+              key={stat.label}
+              href={stat.href}
+              className="group bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-gray-200 transition-all"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <span className={`flex items-center justify-center w-10 h-10 rounded-xl ${stat.bg} ${stat.color}`}>
+                  <Icon className="w-5 h-5" />
+                </span>
+                {stat.urgent && (
+                  <span className="flex items-center gap-1 text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    Urgent
+                  </span>
+                )}
+              </div>
+              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm font-medium text-gray-700 mt-0.5">{stat.label}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{stat.sub}</p>
+              <div className="flex items-center gap-1 mt-3 text-xs font-medium text-gray-400 group-hover:text-[#0088C1] transition-colors">
+                Gérer <ChevronRight className="w-3 h-3" />
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Section Google Analytics + Messages récents */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+        {/* Google Analytics widget */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-50 text-orange-500">
+                <TrendingUp className="w-4 h-4" />
+              </span>
+              <h3 className="text-sm font-bold text-gray-900">Google Analytics</h3>
+            </div>
+          </div>
+
+          {gaId ? (
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="space-y-3">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Les statistiques de visites (visiteurs, pages vues, sources de trafic)
+                  sont disponibles dans Google Analytics.
+                </p>
+                <div className="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                  <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wide mb-1">
+                    ID de mesure
+                  </p>
+                  <p className="text-sm font-mono font-semibold text-gray-700">{gaId}</p>
+                </div>
+              </div>
+              <a
+                href={`https://analytics.google.com/analytics/web/#/p${process.env.GA_PROPERTY_ID ?? ""}/reports/intelligenthome`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                style={{ backgroundColor: '#0088C1', color: '#ffffff' }}
+              >
+                Ouvrir Google Analytics
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center mb-3">
+                <TrendingUp className="w-6 h-6 text-orange-400" />
+              </div>
+              <p className="text-sm font-semibold text-gray-700 mb-1">Google Analytics non configuré</p>
+              <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                Ajoutez <code className="bg-gray-100 px-1 rounded text-[10px]">NEXT_PUBLIC_GA_ID</code> dans votre fichier <code className="bg-gray-100 px-1 rounded text-[10px]">.env.local</code>
+              </p>
+              <a
+                href="https://analytics.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-semibold text-[#0088C1] hover:text-[#014B6A] flex items-center gap-1 transition-colors"
+              >
+                Créer un compte GA4 <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Derniers messages */}
+        <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-gray-900">Derniers messages</h3>
+            <Link
+              href="/admin/contacts"
+              className="text-xs font-semibold text-[#0088C1] hover:text-[#014B6A] flex items-center gap-1 transition-colors"
+            >
+              Voir tout <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {recentContacts && recentContacts.length > 0 ? (
+            <div className="space-y-2">
+              {recentContacts.map((contact) => (
+                <Link
+                  key={contact.id}
+                  href="/admin/contacts"
+                  className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group"
+                >
+                  {/* Avatar initiale */}
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#0088C1]/10 text-[#0088C1] text-xs font-bold shrink-0">
+                    {contact.name?.[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-800 truncate">{contact.name}</p>
+                      {contact.status === "new" && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#0088C1] shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">{contact.subject ?? contact.email}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
+                    <Clock className="w-3 h-3" />
+                    {new Date(contact.created_at).toLocaleDateString("fr-FR", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <Mail className="w-8 h-8 text-gray-200 mb-2" />
+              <p className="text-sm text-gray-400">Aucun message reçu pour le moment</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Accès rapides */}
+      <div>
+        <h3 className="text-sm font-bold text-gray-700 mb-3">Accès rapides</h3>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "Gérer les contacts", href: "/admin/contacts" },
+            { label: "Voir les abonnés", href: "/admin/newsletter" },
+            { label: "Gérer l'équipe", href: "/admin/team" },
+            { label: "Gérer les services", href: "/admin/services" },
+            { label: "Paramètres du site", href: "/admin/settings" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium text-gray-600 bg-white border border-gray-100 hover:border-[#0088C1] hover:text-[#0088C1] transition-colors"
+            >
+              {link.label}
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

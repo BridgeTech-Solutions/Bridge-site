@@ -30,6 +30,24 @@ export async function signInWithEmail(email: string, password: string) {
 }
 
 /**
+ * Envoyer un email de réinitialisation de mot de passe
+ */
+export async function resetPasswordForEmail(email: string) {
+  const supabase = createClient();
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/confirm`,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+/**
  * Déconnexion utilisateur (côté client)
  */
 export async function signOut() {

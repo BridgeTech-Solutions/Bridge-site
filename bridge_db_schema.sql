@@ -786,6 +786,16 @@ CREATE POLICY "Admin peut tout faire key metrics" ON key_metrics
 -- 7. DONNÉES INITIALES (SEED)
 -- ============================================================================
 
+-- Insérer les 6 services BTS
+INSERT INTO services (slug, title, icon, status, order_position) VALUES
+  ('gestion-projets',   'Gestion des projets',               'FolderKanban', 'published', 1),
+  ('infrastructure',    'Infrastructure informatique',        'Server',       'published', 2),
+  ('cloud',             'Solutions cloud computing',          'Cloud',        'published', 3),
+  ('protection-donnees','Protection | Sécurité des données',  'ShieldCheck',  'published', 4),
+  ('dsi-externe',       'DSI externe',                        'Users',        'published', 5),
+  ('conseil-consulting','Conseils | Consultants',             'Lightbulb',    'published', 6)
+ON CONFLICT (slug) DO NOTHING;
+
 -- Insérer paramètres du site par défaut
 INSERT INTO site_settings (key, value, description, category) VALUES
   ('site_name', '"Bridge Technologies Solutions"', 'Nom du site', 'general'),

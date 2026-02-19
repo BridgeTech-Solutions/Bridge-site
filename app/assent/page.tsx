@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function AssentPage() {
   return (
-    <main className="min-h-screen" style={{ paddingTop: "80px" }}>
+    <main className="min-h-screen">
       {/* Header Section */}
       <section className="bg-gradient-to-r from-[#0088C1]/10 to-transparent py-16">
         <div className="container mx-auto text-center">
