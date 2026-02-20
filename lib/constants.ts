@@ -128,9 +128,9 @@ export const VALUES = [
 // PARTENAIRES (Technologies)
 // ============================================================================
 export const PARTNERS = {
-  cloud: ["AWS", "Microsoft Azure", "Google Cloud", "VMware", "Hyper-V"],
-  security: ["Cisco", "Fortinet", "Palo Alto Networks", "Juniper"],
-  infrastructure: ["HPE", "Dell", "Huawei", "Synology", "NetApp"],
+  cloud: ["AWS", "Azure", "gcp", "VMware", "Hyper-V"],
+  security: ["Cisco", "Fortinet", "Palo_Alto", "Juniper"],
+  infrastructure: ["mshyperv", "Dell", "Huawei", "Synology", "NetApp"],
   other: ["Veeam", "Hikvision"],
 } as const;
 
@@ -209,3 +209,40 @@ export const ANIMATION = {
     bounce: [0.68, -0.55, 0.265, 1.55],
   },
 } as const;
+export const IMAGES = [
+  {
+    key: "infogerance",
+    title: "Infogérance",
+    description:
+      "Optimisez votre productivité en nous confiant la gestion de votre système informatique, car votre succès est notre priorité.",
+    image: "/images/noc.jpg",
+  },
+  {
+    key: "infrastructure",
+    title: "Infrastructure Informatique",
+    description:
+      "Nous vous recommandons les solutions les plus efficaces pour concevoir et installer vos systèmes informatiques.",
+    image: "/images/iminfinf2.png",
+  },
+  {
+    key: "consulting",
+    title: "Conseils | Consultants",
+    description:
+      "Bénéficiez d'un soutien technique pour faire évoluer votre système informatique.",
+    image: "/images/consulting.png",
+  },
+  {
+    key: "bridge",
+    title: "Bridge Technologies Solutions",
+    description: "We drive your digital transformation.",
+    image: "/images/btshomeimage.jpg",
+  },
+  {
+    key: "gestion_projets",
+    title: "Gestion des Projets",
+    description:
+      "Nous donnons à vos projets un cadre de référence solide.",
+    image: "/images/gestproj.png",
+  },
+] as const;
+
