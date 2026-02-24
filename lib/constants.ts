@@ -214,7 +214,7 @@ export const IMAGES = [
     key: "infogerance",
     title: "Infogérance",
     description:
-      "Optimisez votre productivité en nous confiant la gestion de votre système informatique, car votre succès est notre priorité.",
+      "Optimisez votre productivité en nous confiant la gestion de votre système informatique.",
     image: "/images/noc.jpg",
   },
   {
@@ -240,9 +240,8 @@ export const IMAGES = [
   {
     key: "gestion_projets",
     title: "Gestion des Projets",
-    description:
-      "Nous donnons à vos projets un cadre de référence solide.",
+    description: "Nous donnons à vos projets un cadre de référence solide.",
     image: "/images/gestproj.png",
   },
-] as const;
+];
 

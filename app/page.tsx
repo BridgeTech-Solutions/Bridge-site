@@ -22,10 +22,10 @@
 //import { SERVICES } from "@/lib/constants";
 "use client";
 
-import { SERVICES, METRICS, VALUES, IMAGES, PARTNERS } from "@/lib/constants";
+import { SERVICES, METRICS, VALUES, IMAGES ,PARTNERS } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export default function Home() {
@@ -47,7 +47,7 @@ export default function Home() {
     setCurrentIndex((prev) => (prev - 1 + IMAGES.length) % IMAGES.length);
   };
 
-  // Générer les logos partenaires avec mapping spécifique
+  // Générer les logos partenaires
   const partnerLogos = Object.entries(PARTNERS).flatMap(([category, names]) =>
     names.map((name) => {
       let fileName = "";
@@ -62,7 +62,7 @@ export default function Home() {
           fileName = "Palo_Alto.png";
           break;
         case "Hyper-V":
-          fileName = "mshyperv.png"; // image spécifique pour Hyper-V
+          fileName = "mshyperv.png";
           break;
         default:
           fileName = `${name.toLowerCase()}.png`;
@@ -77,49 +77,44 @@ export default function Home() {
 
   return (
     <main>
-      {/* Section HERO avec défilement coulissant */}
-      <section className="relative h-[70vh] overflow-hidden">
-        <AnimatePresence>
-          <motion.div
-            key={IMAGES[currentIndex].key}
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 1 }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={IMAGES[currentIndex].image}
-              alt={IMAGES[currentIndex].title}
-              fill
-              className="object-cover object-center w-full h-full"
-              priority
-            />
-            <div className="absolute inset-0 bg-black/40"></div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Texte en bas de l'image */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 text-center px-4 max-w-4xl">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
-            {IMAGES[currentIndex].title}
-          </h1>
-          <h5 className="text-md md:text-lg text-gray-100 drop-shadow-md">
-            {IMAGES[currentIndex].description}
-          </h5>
+      {/* Section HERO réduite */}
+      <section className="relative h-[60vh] w-full overflow-hidden">
+        <div
+          className="absolute inset-0 flex transition-transform duration-1000 ease-in-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {IMAGES.map((img) => (
+            <div key={img.key} className="relative w-full h-[60vh] flex-shrink-0">
+              <Image
+                src={img.image}
+                alt={img.title}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 text-center px-4 max-w-3xl">
+                <h1 className="text-2xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                  {img.title}
+                </h1>
+                <h5 className="text-sm md:text-lg text-gray-100 drop-shadow-md">
+                  {img.description}
+                </h5>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Flèches navigation */}
         <div className="absolute inset-0 flex items-center justify-between px-6 z-20">
           <button
             onClick={prevImage}
-            className="bg-black/5 text-white p-2 rounded-full transition opacity-5 hover:opacity-20"
+            className="bg-black/30 text-white p-2 rounded-full transition hover:bg-black/50"
           >
             ◀
           </button>
           <button
             onClick={nextImage}
-            className="bg-black/5 text-white p-2 rounded-full transition opacity-5 hover:opacity-20"
+            className="bg-black/30 text-white p-2 rounded-full transition hover:bg-black/50"
           >
             ▶
           </button>
@@ -221,7 +216,7 @@ export default function Home() {
               transition={{
                 repeat: Infinity,
                 repeatType: "loop",
-                duration: 8, // défilement plus rapide et continu
+                duration: 8,
                 ease: "linear",
               }}
             >
@@ -240,7 +235,7 @@ export default function Home() {
         </div>
       </section>
 
-       {/* Section CALL TO ACTION */}
+           {/* Section CALL TO ACTION */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <motion.h2
@@ -279,16 +274,6 @@ export default function Home() {
     </main>
   );
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
