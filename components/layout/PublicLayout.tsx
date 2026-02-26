@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import type { SiteSettings } from "@/lib/site-settings";
 
 /**
  * PublicLayout
@@ -14,7 +15,13 @@ import { Footer } from "./Footer";
  *  - /admin et toutes ses sous-pages (qui ont leur propre layout)
  *  - /login (page de connexion sans navigation)
  */
-export function PublicLayout({ children }: { children: React.ReactNode }) {
+export function PublicLayout({
+  children,
+  settings,
+}: {
+  children: React.ReactNode;
+  settings: SiteSettings;
+}) {
   const pathname = usePathname();
 
   const isAdmin = pathname.startsWith("/admin");
@@ -32,7 +39,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
       <div className="pt-20 min-h-screen">
         {children}
       </div>
-      <Footer />
+      <Footer settings={settings} />
     </>
   );
 }

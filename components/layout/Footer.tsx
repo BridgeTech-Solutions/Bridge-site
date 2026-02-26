@@ -14,24 +14,18 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const FOOTER_LINKS = [
-  { label: "Accueil", href: "/" },
-  { label: "Services", href: "/services" },
-  { label: "L'entreprise", href: "/entreprise" },
-  { label: "Contact", href: "/contact" },
-  { label: "Assent", href: "/assent", badge: "New" },
-];
+import { NAV_ITEMS, SERVICE_NAV } from "@/lib/constants";
+import type { SiteSettings } from "@/lib/site-settings";
 
-const SERVICES_LINKS = [
-  { label: "Gestion des projets", href: "/services/gestion-projets" },
-  { label: "Infrastructure informatique", href: "/services/infrastructure" },
-  { label: "Solutions cloud computing", href: "/services/cloud" },
-  { label: "Sécurité des données", href: "/services/protection-donnees" },
-  { label: "DSI externe", href: "/services/dsi-externe" },
-  { label: "Conseils & Consultants", href: "/services/conseil-consulting" },
-];
+const FOOTER_LINKS = NAV_ITEMS.map((n) => ({
+  label: n.label,
+  href:  n.href,
+  badge: "badge" in n ? (n as { badge?: string }).badge : undefined,
+}));
 
-export function Footer() {
+const SERVICES_LINKS = SERVICE_NAV;
+
+export function Footer({ settings }: { settings: SiteSettings }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -91,7 +85,7 @@ export function Footer() {
             {/* Social icons */}
             <div className="flex items-center gap-3">
               <a
-                href="https://www.facebook.com/people/Bridge-Technologies-Solutions/100093075549355/"
+                href={settings.facebook_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
@@ -100,7 +94,7 @@ export function Footer() {
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://www.linkedin.com/company/bridgetechnologies-solutions/"
+                href={settings.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -161,14 +155,14 @@ export function Footer() {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="mailto:contact@bridgetech-solutions.com"
+                  href={`mailto:${settings.contact_email}`}
                   className="flex items-start gap-3 text-sm text-gray-400 hover:text-[#78C2E1] transition-colors group"
                 >
                   <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0088C1]/15 text-[#0088C1] shrink-0 group-hover:bg-[#0088C1] group-hover:text-white transition-colors duration-200">
                     <Mail className="w-4 h-4" />
                   </span>
                   <span className="pt-1 leading-snug break-all">
-                    contact@bridgetech-solutions.com
+                    {settings.contact_email}
                   </span>
                 </a>
               </li>
@@ -178,18 +172,15 @@ export function Footer() {
                     <Phone className="w-4 h-4" />
                   </span>
                   <div className="pt-1 space-y-0.5">
-                    <a
-                      href="tel:+237679289166"
-                      className="block text-sm text-gray-400 hover:text-[#78C2E1] transition-colors"
-                    >
-                      +237 679 289 166
-                    </a>
-                    <a
-                      href="tel:+237692143811"
-                      className="block text-sm text-gray-400 hover:text-[#78C2E1] transition-colors"
-                    >
-                      +237 692 143 811
-                    </a>
+                    {[settings.phone_1, settings.phone_2].filter(Boolean).map((phone) => (
+                      <a
+                        key={phone}
+                        href={`tel:${phone.replace(/\s/g, "")}`}
+                        className="block text-sm text-gray-400 hover:text-[#78C2E1] transition-colors"
+                      >
+                        {phone}
+                      </a>
+                    ))}
                   </div>
                 </div>
               </li>
@@ -199,8 +190,7 @@ export function Footer() {
                     <MapPin className="w-4 h-4" />
                   </span>
                   <address className="text-sm text-gray-400 not-italic leading-relaxed pt-1">
-                    Bonamoussadi, DLA<br />
-                    Douala, Cameroun
+                    {settings.address}
                   </address>
                 </div>
               </li>
@@ -281,6 +271,12 @@ export function Footer() {
           <p className="text-xs text-gray-600 text-center sm:text-left">
             &copy; {new Date().getFullYear()} Bridge Technologies Solutions. Tous droits réservés.
           </p>
+          <Link
+            href="/politique-confidentialite"
+            className="text-xs text-gray-600 hover:text-[#78C2E1] transition-colors"
+          >
+            Politique de confidentialité
+          </Link>
           {/* <div className="flex items-center gap-1">
             <span className="text-xs text-gray-600">Fait avec</span>
             <span className="text-[#0088C1] text-xs mx-1">♦</span>

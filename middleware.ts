@@ -1,11 +1,33 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 
 /**
  * Next.js Middleware
  * Gère l'authentification et la protection des routes admin avec Supabase Auth
  */
+
+/** Headers de sécurité appliqués à TOUTES les routes. */
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  response.headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",   // unsafe-eval retiré
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https:",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "connect-src 'self' https://*.supabase.co",
+      "frame-ancestors 'none'",
+    ].join("; ")
+  );
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  response.headers.delete("X-Powered-By");
+  return response;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,11 +38,7 @@ export async function middleware(request: NextRequest) {
 
   // Vérifier l'authentification pour les routes admin
   if (isAdminRoute || isAdminApiRoute) {
-    let response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
-    });
+    let response = NextResponse.next({ request: { headers: request.headers } });
 
     // Créer client Supabase pour middleware
     const supabase = createServerClient(
@@ -32,12 +50,10 @@ export async function middleware(request: NextRequest) {
             return request.cookies.getAll();
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
+            cookiesToSet.forEach(({ name, value }) =>
               request.cookies.set(name, value)
             );
-            response = NextResponse.next({
-              request,
-            });
+            response = NextResponse.next({ request });
             cookiesToSet.forEach(({ name, value, options }) =>
               response.cookies.set(name, value, options)
             );
@@ -46,66 +62,54 @@ export async function middleware(request: NextRequest) {
       }
     );
 
-    // Vérifier la session
+    // getUser() valide le JWT côté serveur (plus sûr que getSession)
     const {
-      data: { session },
+      data: { user },
       error,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
 
-    // Si pas de session, rediriger vers login
-    if (error || !session) {
+    // Si pas d'utilisateur authentifié → login
+    if (error || !user) {
+      if (isAdminApiRoute) {
+        return applySecurityHeaders(
+          NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+        );
+      }
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    // Vérifier si l'utilisateur est admin
+    // Vérifier que l'utilisateur est bien un admin actif
     const { data: adminUser, error: adminError } = await supabase
       .from("admin_users")
       .select("id, role, is_active")
-      .eq("id", session.user.id)
+      .eq("id", user.id)
       .eq("is_active", true)
       .single();
 
-    // Si pas admin, rediriger vers login avec message
     if (adminError || !adminUser) {
+      if (isAdminApiRoute) {
+        return applySecurityHeaders(
+          NextResponse.json({ error: "Forbidden" }, { status: 403 })
+        );
+      }
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("error", "unauthorized");
       return NextResponse.redirect(loginUrl);
     }
 
-    return response;
+    // Authentifié et admin → appliquer les headers de sécurité
+    return applySecurityHeaders(response);
   }
 
-  // Ajouter des headers de sécurité à toutes les réponses
-  const response = NextResponse.next();
-
-  // Content Security Policy
-  response.headers.set(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co;"
-  );
-
-  // Autres headers de sécurité
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-
-  return response;
+  // Routes publiques → appliquer les headers de sécurité
+  return applySecurityHeaders(NextResponse.next());
 }
 
 // Configurer les routes où le middleware s'applique
 export const config = {
   matcher: [
-    /*
-     * Matcher pour toutes les routes sauf:
-     * - api (hors /api/admin)
-     * - _next/static (fichiers statiques)
-     * - _next/image (optimisation d'images)
-     * - favicon.ico
-     * - fichiers publics (images, fonts, etc.)
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|otf)$).*)",
   ],
 };

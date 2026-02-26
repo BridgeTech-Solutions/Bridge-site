@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
+const VALID_SOURCES = ["footer", "home", "contact", "popup", "blog"] as const;
+
 export async function POST(request: Request) {
   try {
     const { email, source } = await request.json();
@@ -8,6 +10,12 @@ export async function POST(request: Request) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Email invalide" }, { status: 400 });
     }
+    if (email.length > 254) {
+      return NextResponse.json({ error: "Email invalide" }, { status: 400 });
+    }
+
+    // Source validée par allowlist (pas de valeur arbitraire en BD)
+    const validatedSource = VALID_SOURCES.includes(source) ? source : "footer";
 
     const normalizedEmail = email.trim().toLowerCase();
     const supabase = createAdminClient();
@@ -21,8 +29,8 @@ export async function POST(request: Request) {
 
     if (existing) {
       if (existing.status === "active") {
-        // Déjà abonné — on renvoie success sans dupliquer
-        return NextResponse.json({ success: true, already: true });
+        // Déjà abonné — réponse générique (pas d'énumération d'emails)
+        return NextResponse.json({ success: true });
       }
       // Désabonné ou bounced → réactiver
       const { error } = await supabase
@@ -34,16 +42,16 @@ export async function POST(request: Request) {
         console.error("Newsletter reactivate error:", error);
         return NextResponse.json({ error: "Erreur lors de l'inscription" }, { status: 500 });
       }
-      return NextResponse.json({ success: true, reactivated: true });
+      return NextResponse.json({ success: true });
     }
 
     // Nouvel abonné
     const { error } = await supabase
       .from("newsletters")
       .insert({
-        email: normalizedEmail,
+        email:  normalizedEmail,
         status: "active",
-        source: source ?? "footer",
+        source: validatedSource,
       });
 
     if (error) {
