@@ -10,6 +10,7 @@ import {
   ExternalLink,
   ChevronRight,
   Clock,
+  Inbox,
 } from "lucide-react";
 
 export const metadata = { title: "Dashboard — Admin BTS" };
@@ -27,6 +28,8 @@ export default async function AdminDashboard() {
     { count: activeNewsletter },
     { count: totalTeam },
     { data: recentContacts },
+    { count: unreadThisWeek },
+    { data: newsletterSubscriptions },
   ] = await Promise.all([
     supabase.from("contacts").select("*", { count: "exact", head: true }),
     supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "new"),
@@ -38,7 +41,34 @@ export default async function AdminDashboard() {
       .select("id, name, email, subject, status, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
+    // Contacts non lus cette semaine
+    supabase
+      .from("contacts")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new")
+      .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+    // Abonnements 30 derniers jours
+    supabase
+      .from("newsletters")
+      .select("subscribed_at")
+      .gte("subscribed_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
   ]);
+
+  // Calculer les données du graphique (30 jours glissants)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dayMap = new Map<string, number>();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dayMap.set(d.toISOString().slice(0, 10), 0);
+  }
+  for (const sub of newsletterSubscriptions ?? []) {
+    const key = (sub.subscribed_at as string).slice(0, 10);
+    if (dayMap.has(key)) dayMap.set(key, (dayMap.get(key) ?? 0) + 1);
+  }
+  const chartData = Array.from(dayMap.entries()); // [["2025-01-01", 2], ...]
+  const chartMax = Math.max(1, ...chartData.map(([, v]) => v));
 
   const stats = [
     {
@@ -126,6 +156,76 @@ export default async function AdminDashboard() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Card non lus cette semaine + Graphique abonnements 30j */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* Card non lus cette semaine */}
+        <Link
+          href="/admin/contacts"
+          className="group bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-gray-200 transition-all"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-500">
+              <Inbox className="w-5 h-5" />
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-gray-900">{unreadThisWeek ?? 0}</p>
+          <p className="text-sm font-medium text-gray-700 mt-0.5">Non lus cette semaine</p>
+          <p className="text-xs text-gray-400 mt-0.5">Messages sans réponse (7j)</p>
+          <div className="flex items-center gap-1 mt-3 text-xs font-medium text-gray-400 group-hover:text-[#0088C1] transition-colors">
+            Voir les contacts <ChevronRight className="w-3 h-3" />
+          </div>
+        </Link>
+
+        {/* Graphique abonnements newsletter 30j */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600">
+              <TrendingUp className="w-4 h-4" />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-gray-900">Abonnements newsletter</p>
+              <p className="text-xs text-gray-400">30 derniers jours</p>
+            </div>
+          </div>
+          <svg viewBox="0 0 600 80" className="w-full" aria-hidden="true">
+            {chartData.map(([date, count], i) => {
+              const barW = 14;
+              const gap = 6;
+              const x = i * (barW + gap);
+              const barH = count === 0 ? 2 : Math.max(4, Math.round((count / chartMax) * 64));
+              const y = 70 - barH;
+              const isFirst = i === 0;
+              const isMid = i === 14;
+              const isLast = i === 29;
+              return (
+                <g key={date}>
+                  {/* Fond */}
+                  <rect x={x} y={6} width={barW} height={64} rx={3} fill="#f3f4f6" />
+                  {/* Barre */}
+                  <rect x={x} y={y} width={barW} height={barH} rx={3} fill="#10b981" />
+                  {/* Labels axe X */}
+                  {(isFirst || isMid || isLast) && (
+                    <text
+                      x={x + barW / 2}
+                      y={78}
+                      textAnchor="middle"
+                      fontSize={8}
+                      fill="#9ca3af"
+                    >
+                      {new Date(date).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+          <p className="text-xs text-gray-400 mt-1">
+            {(newsletterSubscriptions ?? []).length} nouvel{(newsletterSubscriptions ?? []).length > 1 ? "s" : ""} abonné{(newsletterSubscriptions ?? []).length > 1 ? "s" : ""} ce mois
+          </p>
+        </div>
       </div>
 
       {/* Section Google Analytics + Messages récents */}

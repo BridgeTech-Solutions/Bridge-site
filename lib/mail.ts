@@ -127,3 +127,98 @@ ${data.message}
     `.trim(),
   });
 }
+
+/* ─── Type abonné newsletter ───────────────────────────── */
+export type NewsletterSubscriber = { id: string; email: string };
+
+/* ─── Réponse admin → contact ──────────────────────────── */
+export async function sendAdminReply(
+  to: string,
+  subject: string,
+  body: string
+) {
+  const from = process.env.EMAIL_FROM
+    ? `"Bridge Technologies Solutions" <${process.env.EMAIL_FROM}>`
+    : `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
+
+  const escapedBody = esc(body);
+
+  await transporter.sendMail({
+    from,
+    to,
+    subject: subject.slice(0, 200),
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background: linear-gradient(135deg, #0a1628, #014B6A); padding: 28px 32px;">
+          <h1 style="color: #fff; margin: 0; font-size: 20px; font-weight: 700;">
+            Réponse de Bridge Technologies Solutions
+          </h1>
+          <p style="color: #78C2E1; margin: 6px 0 0; font-size: 13px;">
+            bridgetech-solutions.com
+          </p>
+        </div>
+        <div style="padding: 32px;">
+          <div style="background: #f7fafc; border-left: 3px solid #0088C1; padding: 16px; border-radius: 0 6px 6px 0; color: #2d3748; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${escapedBody}</div>
+        </div>
+        <div style="background: #f7fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0;">
+          <p style="color: #a0aec0; font-size: 12px; margin: 0; text-align: center;">
+            Bridge Technologies Solutions · Bonamoussadi, DLA, CAM · contact@bridgetech-solutions.com
+          </p>
+        </div>
+      </div>
+    `,
+    text: body,
+  });
+}
+
+/* ─── Envoi newsletter à tous les abonnés actifs ──────── */
+export async function sendNewsletter(
+  subscribers: NewsletterSubscriber[],
+  subject: string,
+  body: string
+): Promise<{ sent: number; failed: number; errors: string[] }> {
+  const from = process.env.EMAIL_FROM
+    ? `"Bridge Technologies Solutions" <${process.env.EMAIL_FROM}>`
+    : `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
+
+  const escapedBody = esc(body);
+  let sent = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  for (const subscriber of subscribers) {
+    try {
+      await transporter.sendMail({
+        from,
+        to: subscriber.email,
+        subject: subject.slice(0, 200),
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #0a1628, #014B6A); padding: 28px 32px;">
+              <h1 style="color: #fff; margin: 0; font-size: 20px; font-weight: 700;">
+                Bridge Technologies Solutions
+              </h1>
+              <p style="color: #78C2E1; margin: 6px 0 0; font-size: 13px;">Newsletter</p>
+            </div>
+            <div style="padding: 32px;">
+              <div style="color: #2d3748; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${escapedBody}</div>
+            </div>
+            <div style="background: #f7fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0;">
+              <p style="color: #a0aec0; font-size: 12px; margin: 0; text-align: center;">
+                Bridge Technologies Solutions · Bonamoussadi, DLA, CAM<br>
+                Vous recevez cet email car vous êtes abonné à notre newsletter.
+              </p>
+            </div>
+          </div>
+        `,
+        text: body,
+      });
+      sent++;
+    } catch (err) {
+      failed++;
+      errors.push(`${subscriber.email}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  return { sent, failed, errors };
+}

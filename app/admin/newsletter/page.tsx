@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Bell, UserCheck, UserX, Users } from "lucide-react";
 import { NewsletterTable } from "@/components/admin/NewsletterTable";
+import { NewsletterComposer } from "@/components/admin/NewsletterComposer";
 
 export const metadata = { title: "Newsletter — Admin BTS" };
 
@@ -49,6 +50,9 @@ export default async function AdminNewsletterPage() {
           );
         })}
       </div>
+
+      {/* Composer newsletter */}
+      <NewsletterComposer activeCount={active ?? 0} />
 
       {/* Tableau */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">

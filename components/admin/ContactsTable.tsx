@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Trash2, CheckCheck, X, Mail, Phone } from "lucide-react";
+import { Eye, Trash2, CheckCheck, X, Mail, Phone, Send, Loader2 } from "lucide-react";
 
 type Contact = {
   id: string;
@@ -18,6 +18,11 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
   const [selected, setSelected] = useState<Contact | null>(null);
   const [list, setList] = useState<Contact[]>(contacts);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  // États réponse admin
+  const [replyTarget, setReplyTarget] = useState<Contact | null>(null);
+  const [replySending, setReplySending] = useState(false);
+  const [replyResult, setReplyResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
   const markAsRead = async (id: string) => {
     setLoadingId(id);
@@ -41,6 +46,44 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
       if (selected?.id === id) setSelected(null);
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const openReply = (contact: Contact) => {
+    setReplyResult(null);
+    setReplyTarget(contact);
+    setSelected(null);
+  };
+
+  const sendReply = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!replyTarget) return;
+    const form = e.currentTarget;
+    const subject = (form.elements.namedItem("subject") as HTMLInputElement).value.trim();
+    const body = (form.elements.namedItem("body") as HTMLTextAreaElement).value.trim();
+    if (!subject || !body) return;
+
+    setReplySending(true);
+    setReplyResult(null);
+    try {
+      const res = await fetch(`/api/admin/contacts/${replyTarget.id}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body }),
+      });
+      if (res.ok) {
+        setList((prev) =>
+          prev.map((c) => c.id === replyTarget.id ? { ...c, status: "replied" } : c)
+        );
+        setReplyResult({ ok: true, msg: "Email envoyé avec succès !" });
+      } else {
+        const data = await res.json();
+        setReplyResult({ ok: false, msg: data.error ?? "Erreur lors de l'envoi" });
+      }
+    } catch {
+      setReplyResult({ ok: false, msg: "Erreur réseau" });
+    } finally {
+      setReplySending(false);
     }
   };
 
@@ -102,6 +145,10 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
                       <span className="w-1.5 h-1.5 rounded-full bg-white" />
                       Non lu
                     </span>
+                  ) : contact.status === "replied" ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-emerald-100 text-emerald-700">
+                      Répondu
+                    </span>
                   ) : (
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-medium bg-gray-100 text-gray-500">
                       Lu
@@ -116,6 +163,13 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
                       title="Voir le message"
                     >
                       <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => openReply(contact)}
+                      className="p-1.5 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-[#0088C1] transition-colors"
+                      title="Répondre par email"
+                    >
+                      <Send className="w-4 h-4" />
                     </button>
                     {contact.status === "new" && (
                       <button
@@ -173,9 +227,9 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
             {/* Corps modal */}
             <div className="p-6 space-y-4">
               <div className="flex flex-wrap gap-3 text-sm">
-                <a href={`mailto:${selected.email}`} className="flex items-center gap-1.5 text-[#0088C1] hover:underline">
+                <span className="flex items-center gap-1.5 text-[#0088C1]">
                   <Mail className="w-4 h-4" /> {selected.email}
-                </a>
+                </span>
                 {selected.phone && (
                   <a href={`tel:${selected.phone}`} className="flex items-center gap-1.5 text-gray-500 hover:underline">
                     <Phone className="w-4 h-4" /> {selected.phone}
@@ -209,12 +263,12 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
                   <CheckCheck className="w-4 h-4" /> Marquer comme lu
                 </button>
               )}
-              <a
-                href={`mailto:${selected.email}`}
+              <button
+                onClick={() => openReply(selected)}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-white transition-colors"
               >
-                <Mail className="w-4 h-4" /> Répondre
-              </a>
+                <Send className="w-4 h-4" /> Répondre
+              </button>
               <button
                 onClick={() => deleteContact(selected.id)}
                 className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
@@ -222,6 +276,89 @@ export function ContactsTable({ contacts }: { contacts: Contact[] }) {
                 <Trash2 className="w-4 h-4" /> Supprimer
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de réponse */}
+      {replyTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div>
+                <p className="font-bold text-gray-900">Répondre à {replyTarget.name}</p>
+                <p className="text-xs text-gray-400">{replyTarget.email}</p>
+              </div>
+              <button
+                onClick={() => { setReplyTarget(null); setReplyResult(null); }}
+                className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={sendReply} className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
+                  Destinataire
+                </label>
+                <input
+                  readOnly
+                  value={replyTarget.email}
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
+                  Sujet
+                </label>
+                <input
+                  name="subject"
+                  defaultValue={replyTarget.subject ? `Re: ${replyTarget.subject}` : "Re: Votre message"}
+                  required
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0088C1]/30 focus:border-[#0088C1]"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block">
+                  Message
+                </label>
+                <textarea
+                  name="body"
+                  rows={6}
+                  required
+                  placeholder="Votre réponse..."
+                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0088C1]/30 focus:border-[#0088C1] resize-none"
+                />
+              </div>
+
+              {replyResult && (
+                <p className={`text-sm font-medium rounded-lg px-3 py-2 ${replyResult.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                  {replyResult.msg}
+                </p>
+              )}
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={replySending}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#0088C1] hover:bg-[#006fa0] disabled:opacity-60 transition-colors"
+                >
+                  {replySending ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Envoi…</>
+                  ) : (
+                    <><Send className="w-4 h-4" /> Envoyer</>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setReplyTarget(null); setReplyResult(null); }}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                >
+                  Annuler
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
