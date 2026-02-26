@@ -23,7 +23,7 @@ const SERVICES = [
   { label: "Solutions cloud computing", href: "/services/cloud", icon: Cloud },
   { label: "Protection | Sécurité des données", href: "/services/protection-donnees", icon: ShieldCheck },
   { label: "DSI externe", href: "/services/dsi-externe", icon: Users },
-  { label: "Conseils | Consultants", href: "/services/conseil-consulting", icon: Lightbulb },
+  { label: "Conseils | Consultants", href: "/services/conseils-consultants", icon: Lightbulb },
 ];
 
 const NAV_LINKS = [

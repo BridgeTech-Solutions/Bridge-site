@@ -34,18 +34,43 @@ export const metadata: Metadata = {
 
 export default function AssentPage() {
   return (
-    <main className="min-h-screen" style={{ paddingTop: "80px" }}>
+    <main className="min-h-screen">
       {/* Header Section */}
-      <section className="bg-gradient-to-r from-[#0088C1]/10 to-transparent py-16">
-        <div className="container mx-auto text-center">
-          <div className="relative w-full max-w-sm mx-auto h-24 mb-8">
+      <section
+        className="relative overflow-hidden py-20"
+        style={{ background: "linear-gradient(135deg, #0a1628 0%, #012a45 60%, #014B6A 100%)" }}
+      >
+        {/* Dot grid overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "radial-gradient(circle, rgba(120,194,225,.18) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+        {/* Decorative ring */}
+        <div
+          className="absolute -right-24 -top-24 w-96 h-96 rounded-full pointer-events-none"
+          style={{ border: "1.5px solid rgba(0,136,193,.18)" }}
+        />
+        <div className="relative z-10 container mx-auto text-center px-6">
+          <div className="relative w-full max-w-xs mx-auto h-20 mb-5">
             <Image
               src="/images/bt-title-assent.png"
-              alt="Assent Logo"
+              alt="Assent"
               fill
-              className="object-contain"
+              className="object-contain drop-shadow-2xl"
             />
           </div>
+          <p className="text-sm font-medium" style={{ color: "#78C2E1" }}>
+            Solution de conformité bancaire — Bridge Technologies Solutions
+          </p>
+        </div>
+        {/* Wave divider */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+          <svg viewBox="0 0 1440 40" className="w-full" preserveAspectRatio="none" fill="#ffffff">
+            <path d="M0,20 C360,40 1080,0 1440,20 L1440,40 L0,40 Z" />
+          </svg>
         </div>
       </section>
 

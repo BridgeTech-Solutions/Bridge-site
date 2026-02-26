@@ -1,107 +1,86 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-/**
- * Authentication utilities for Server Components
- *
- * Fonctions serveur uniquement:
- * - getSession: Récupérer session courante
- * - getUser: Récupérer utilisateur courant
- * - isAdmin: Vérifier si utilisateur est admin
- * - requireAuth: Protéger une route (Server Component)
- * - isAuthenticated: Vérifier si authentifié
- */
+export type AdminRecord = {
+  id: string;
+  role: string;
+  full_name: string | null;
+  is_active: boolean;
+};
 
 /**
- * Récupérer la session courante (côté serveur)
- * @returns Session utilisateur ou null
- */
-export async function getSession() {
-  const supabase = await createClient();
-
-  const { data: { session }, error } = await supabase.auth.getSession();
-
-  if (error) {
-    console.error("Erreur lors de la récupération de la session:", error);
-    return null;
-  }
-
-  return session;
-}
-
-/**
- * Récupérer l'utilisateur courant (côté serveur)
- * @returns Utilisateur ou null
+ * Récupérer l'utilisateur Supabase Auth courant (sécurisé)
  */
 export async function getUser() {
   const supabase = await createClient();
-
   const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur:", error);
-    return null;
-  }
-
+  if (error) return null;
   return user;
 }
 
-/**
- * Vérifier si l'utilisateur est un admin
- * @param userId ID de l'utilisateur
- * @returns true si admin, false sinon
- */
-export async function isAdmin(userId: string): Promise<boolean> {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from('admin_users')
-    .select('id, role, is_active')
-    .eq('id', userId)
-    .eq('is_active', true)
-    .single();
-
-  if (error || !data) {
-    return false;
-  }
-
-  return true;
+/** @deprecated Utiliser getUser() */
+export async function getSession() {
+  const user = await getUser();
+  return user ? { user } : null;
 }
 
 /**
- * Protéger une route - Rediriger vers /login si non authentifié
- * À utiliser dans les Server Components
- *
- * @example
- * ```tsx
- * export default async function AdminPage() {
- *   await requireAuth();
- *   // ... rest of component
- * }
- * ```
+ * Récupérer la ligne admin_users d'un utilisateur (via service role → ignore RLS)
+ */
+export async function getAdminRecord(userId: string): Promise<AdminRecord | null> {
+  const { data, error } = await createAdminClient()
+    .from("admin_users")
+    .select("id, role, full_name, is_active")
+    .eq("id", userId)
+    .eq("is_active", true)
+    .single();
+
+  if (error || !data) return null;
+  return data as AdminRecord;
+}
+
+/**
+ * Vérifier si l'utilisateur est un admin actif
+ */
+export async function isAdmin(userId: string): Promise<boolean> {
+  const record = await getAdminRecord(userId);
+  return record !== null;
+}
+
+/**
+ * Protéger une route — redirige vers /login si non authentifié ou non admin.
+ * Retourne { user, adminRecord } pour que les pages puissent utiliser le rôle.
  */
 export async function requireAuth() {
-  const session = await getSession();
+  const user = await getUser();
+  if (!user) redirect("/login");
 
-  if (!session) {
-    redirect("/login");
+  const adminRecord = await getAdminRecord(user.id);
+  if (!adminRecord) redirect("/login?error=unauthorized");
+
+  return { user, adminRecord };
+}
+
+/**
+ * Protéger une route selon le rôle.
+ * Utilisation : await requireRole(["super_admin"])
+ *
+ * Rôles disponibles : super_admin > admin > editor > viewer
+ */
+export async function requireRole(allowedRoles: string[]) {
+  const { user, adminRecord } = await requireAuth();
+
+  if (!allowedRoles.includes(adminRecord.role)) {
+    redirect("/admin?error=forbidden");
   }
 
-  // Vérifier si l'utilisateur est admin
-  const userIsAdmin = await isAdmin(session.user.id);
-
-  if (!userIsAdmin) {
-    redirect("/login?error=unauthorized");
-  }
-
-  return session;
+  return { user, adminRecord };
 }
 
 /**
  * Vérifier si l'utilisateur est authentifié (sans redirection)
- * @returns true si authentifié, false sinon
  */
 export async function isAuthenticated(): Promise<boolean> {
-  const session = await getSession();
-  return session !== null;
+  const user = await getUser();
+  return user !== null;
 }
