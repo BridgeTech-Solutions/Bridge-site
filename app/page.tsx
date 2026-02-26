@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,7 +17,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   FolderKanban, Server, Cloud, ShieldCheck, Users, Lightbulb,
 };
 
-const FALLBACK_SERVICES = CONST_SERVICES.map((s, i) => ({
+const displayServices = CONST_SERVICES.map((s, i) => ({
   id:                String(i + 1),
   slug:              s.slug,
   title:             s.title,
@@ -34,15 +33,7 @@ const STATS = METRICS.map((m) => ({
 
 /* ─── Page ─── */
 
-export default async function Home() {
-  const supabase = await createClient();
-  const { data: services } = await supabase
-    .from("services")
-    .select("id, slug, title, short_description, icon")
-    .eq("status", "published")
-    .order("order_position");
-
-  const displayServices = services && services.length > 0 ? services : FALLBACK_SERVICES;
+export default function Home() {
 
   return (
     <>
