@@ -27,10 +27,12 @@ export default function ForgotPasswordPage() {
       if (ok) {
         setSuccess(true);
       } else {
-        setError(err ?? "Une erreur est survenue. Réessayez.");
+        console.error("resetPasswordForEmail error:", err);
+        setError(err || "Une erreur est survenue. Veuillez réessayer.");
       }
-    } catch {
-      setError("Une erreur est survenue. Réessayez.");
+    } catch (e) {
+      console.error("resetPasswordForEmail exception:", e);
+      setError("Une erreur est survenue. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
