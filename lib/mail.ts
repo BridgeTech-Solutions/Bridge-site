@@ -31,9 +31,8 @@ export async function sendContactNotification(data: {
   message: string;
 }) {
   const to = process.env.CONTACT_NOTIFY_EMAIL ?? "contact@bridgetech-solutions.com";
-  const from = process.env.EMAIL_FROM
-    ? `"BTS Site Web" <${process.env.EMAIL_FROM}>`
-    : `"BTS Site Web" <${process.env.SMTP_USER}>`;
+  // Exchange Online exige que from = compte SMTP authentifié (pas d'alias)
+  const from = `"BTS Site Web" <${process.env.SMTP_USER}>`;
 
   // Valeurs échappées — jamais interpolées brutes dans le HTML
   const name    = esc(data.name);
@@ -137,9 +136,7 @@ export async function sendAdminReply(
   subject: string,
   body: string
 ) {
-  const from = process.env.EMAIL_FROM
-    ? `"Bridge Technologies Solutions" <${process.env.EMAIL_FROM}>`
-    : `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
+  const from = `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
 
   const escapedBody = esc(body);
 
@@ -177,9 +174,7 @@ export async function sendNewsletter(
   subject: string,
   body: string
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
-  const from = process.env.EMAIL_FROM
-    ? `"Bridge Technologies Solutions" <${process.env.EMAIL_FROM}>`
-    : `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
+  const from = `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
 
   const escapedBody = esc(body);
   let sent = 0;
