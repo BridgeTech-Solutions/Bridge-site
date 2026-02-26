@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-/** Échapper les caractères HTML pour éviter toute injection dans l'email. */
+/** Échapper les caractères HTML pour les attributs (complet). */
 function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -19,6 +19,15 @@ function esc(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/** Échapper uniquement &, <, > pour le contenu dans un élément HTML.
+ *  N'encode pas les apostrophes/guillemets — évite &#39; dans les emails. */
+function escContent(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 /* ─── Email de notification — nouveau message contact ── */
@@ -30,17 +39,17 @@ export async function sendContactNotification(data: {
   subject?: string | null;
   message: string;
 }) {
-  const to = process.env.CONTACT_NOTIFY_EMAIL ?? "contact@bridgetech-solutions.com";
+  const to = process.env.CONTACT_NOTIFY_EMAIL ?? "hd@bridgetech-solutions.com";
   // Exchange Online exige que from = compte SMTP authentifié (pas d'alias)
   const from = `"BTS Site Web" <${process.env.SMTP_USER}>`;
 
   // Valeurs échappées — jamais interpolées brutes dans le HTML
-  const name    = esc(data.name);
-  const email   = esc(data.email);
-  const phone   = data.phone   ? esc(data.phone)   : null;
-  const company = data.company ? esc(data.company) : null;
-  const subject = data.subject ? esc(data.subject) : null;
-  const message = esc(data.message);
+  const name    = escContent(data.name);
+  const email   = esc(data.email);          // dans un attribut href
+  const phone   = data.phone   ? escContent(data.phone)   : null;
+  const company = data.company ? escContent(data.company) : null;
+  const subject = data.subject ? escContent(data.subject) : null;
+  const message = escContent(data.message);
 
   // Sujet de l'email (texte brut — pas de HTML)
   const emailSubject = `[Contact BTS] ${data.subject ?? "Nouveau message"} — ${data.name}`.slice(0, 200);
@@ -138,7 +147,7 @@ export async function sendAdminReply(
 ) {
   const from = `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
 
-  const escapedBody = esc(body);
+  const escapedBody = escContent(body);
 
   await transporter.sendMail({
     from,
@@ -176,7 +185,7 @@ export async function sendNewsletter(
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
   const from = `"Bridge Technologies Solutions" <${process.env.SMTP_USER}>`;
 
-  const escapedBody = esc(body);
+  const escapedBody = escContent(body);
   let sent = 0;
   let failed = 0;
   const errors: string[] = [];
