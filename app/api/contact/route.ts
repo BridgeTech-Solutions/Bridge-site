@@ -48,20 +48,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Message trop long (max 5000 caractères)" }, { status: 400 });
     }
 
-    const userAgent = request.headers.get("user-agent") ?? undefined;
-
     const { error } = await createAdminClient()
       .from("contacts")
       .insert({
-        name:       name.trim(),
-        email:      email.trim().toLowerCase(),
-        phone:      phone?.trim() || null,
-        company:    company?.trim() || null,
-        subject:    subject?.trim() || null,
-        message:    message.trim(),
-        source:     "contact_page",
-        user_agent: userAgent,
-        status:     "new",
+        name:    name.trim(),
+        email:   email.trim().toLowerCase(),
+        phone:   phone?.trim() || null,
+        company: company?.trim() || null,
+        subject: subject?.trim() || null,
+        message: message.trim(),
+        status:  "new",
       });
 
     if (error) {
