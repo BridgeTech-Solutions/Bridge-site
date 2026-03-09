@@ -83,7 +83,7 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-8">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0 py-2">
+          <Link href="/" className="flex items-center shrink-0 py-3">
             <Image
               src="/logo.png"
               alt="Bridge Technologies Solutions"
