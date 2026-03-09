@@ -50,9 +50,9 @@ export default function Home() {
           33%,100% { opacity:0; }
         }
         .hero-slide   { position:absolute; inset:0; }
-        .hero-slide-1 { animation: slide-show-first 18s ease-in-out infinite 0s;  z-index:1; }
-        .hero-slide-2 { animation: slide-show       18s ease-in-out infinite 6s;  z-index:1; }
-        .hero-slide-3 { animation: slide-show       18s ease-in-out infinite 12s; z-index:1; }
+        .hero-slide-1 { animation: slide-show-first 18s ease-in-out infinite 0s;           z-index:1; }
+        .hero-slide-2 { animation: slide-show       18s ease-in-out infinite 6s  backwards; z-index:1; }
+        .hero-slide-3 { animation: slide-show       18s ease-in-out infinite 12s backwards; z-index:1; }
 
         /* ── Hero content ── */
         @keyframes fade-up {
