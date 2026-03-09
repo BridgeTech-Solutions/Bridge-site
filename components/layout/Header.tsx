@@ -89,7 +89,7 @@ export function Header() {
               alt="Bridge Technologies Solutions"
               width={160}
               height={48}
-              style={{ height: "44px", width: "auto", display: "block" }}
+              style={{ height: "56px", width: "auto", display: "block" }}
               priority
             />
           </Link>

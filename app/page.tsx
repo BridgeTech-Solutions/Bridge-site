@@ -288,7 +288,7 @@ export default function Home() {
                 className="absolute -bottom-5 -left-5 w-28 h-28 rounded-2xl flex flex-col items-center justify-center -rotate-6 select-none bg-[#0088C1]"
                 style={{ boxShadow: "0 16px 40px rgba(0,136,193,.4)" }}
               >
-                <span className="text-3xl font-black text-white leading-none">10+</span>
+                <span className="text-3xl font-black text-white leading-none">5+</span>
                 <span className="text-[10px] text-white/80 font-semibold text-center mt-1 leading-tight">
                   ans<br />d&apos;expertise
                 </span>

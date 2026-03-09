@@ -172,7 +172,7 @@ export const SERVICE_NAV = SERVICES.map((s) => ({
 // MÉTRIQUES / CHIFFRES CLÉS
 // ============================================================================
 export const METRICS = [
-  { value: "10+",  label: "Années d'expérience",     icon: "Award"      },
+  { value: "5+",   label: "Années d'expérience",     icon: "Award"      },
   { value: "50+",  label: "Entreprises accompagnées", icon: "Briefcase"  },
   { value: "100+", label: "Projets réalisés",         icon: "TrendingUp" },
   { value: "6",    label: "Domaines d'expertise",     icon: "Globe"      },
