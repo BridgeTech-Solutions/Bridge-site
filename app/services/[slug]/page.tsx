@@ -320,11 +320,15 @@ export default async function ServiceDetailPage(
         .btn-ghost:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.6); }
 
         @media (max-width:640px) {
-          .feat-section { padding:2.5rem 1.25rem; }
+          .feat-section { padding:2rem 1rem; }
           .feat-body { flex-direction:column; gap:1.25rem; }
-          .feat-icon-wrap { width:72px; height:72px; padding:1rem; }
-          .feat-ghost-num { font-size:5rem; }
+          .feat-icon-wrap { width:64px; height:64px; padding:.875rem; }
+          .feat-ghost-num { font-size:4rem; }
           .bullets-grid { grid-template-columns: 1fr; }
+          .feat-title { font-size:1.15rem; }
+          .btn-prim, .btn-ghost { padding:.75rem 1.25rem; font-size:.85rem; width:100%; justify-content:center; }
+          .nav-card { padding:.875rem 1rem; }
+          .other-card { padding:.875rem 1rem; }
         }
       `}</style>
 
@@ -332,7 +336,7 @@ export default async function ServiceDetailPage(
 
         {/* ══ HERO ══════════════════════════════════════════════ */}
         <section
-          className="relative overflow-hidden py-24"
+          className="relative overflow-hidden py-14 sm:py-24"
           style={{ background: "linear-gradient(135deg,#071020 0%,#012a45 55%,#014B6A 100%)" }}
         >
           <div className="dot-grid absolute inset-0 pointer-events-none opacity-60" />
@@ -354,10 +358,10 @@ export default async function ServiceDetailPage(
               <span className="text-white">{service.title}</span>
             </nav>
 
-            <div className="flex items-start gap-7 au">
+            <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-7 au">
               {/* Grande icône hero */}
               <div
-                className="w-24 h-24 rounded-2xl flex items-center justify-center flex-shrink-0 p-4 shadow-lg"
+                className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0 p-3 sm:p-4 shadow-lg"
                 style={{ background: "rgba(0,136,193,.2)", border: "1.5px solid rgba(0,136,193,.35)" }}
               >
                 <Image src={service.icon} alt={service.title} width={64} height={64} className="object-contain" />
@@ -372,7 +376,7 @@ export default async function ServiceDetailPage(
                     {service.subtitle}
                   </span>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-black text-white leading-tight" style={{ letterSpacing: "-.025em" }}>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight" style={{ letterSpacing: "-.025em" }}>
                   {service.title}
                 </h1>
               </div>
@@ -388,9 +392,9 @@ export default async function ServiceDetailPage(
         </section>
 
         {/* ══ INTRO ═════════════════════════════════════════════ */}
-        <section className="max-w-5xl mx-auto px-6 py-12 au d1">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 au d1">
           <div
-            className="rounded-2xl p-8 md:p-10"
+            className="rounded-2xl p-5 sm:p-8 md:p-10"
             style={{ background: "#fff", border: "1.5px solid #e2e8f0", boxShadow: "0 2px 20px rgba(0,0,0,.04)" }}
           >
             <div className="flex items-start gap-5">
@@ -427,7 +431,7 @@ export default async function ServiceDetailPage(
 
         {/* ══ FEATURES (sections numérotées) ══════════════════ */}
         {service.features.length > 0 && (
-          <section className="max-w-5xl mx-auto px-6 py-6">
+          <section className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
             <div className="mb-8 au d2">
               <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "#0088C1" }}>Nos expertises</p>
               <h2 className="text-2xl md:text-3xl font-black text-gray-900" style={{ letterSpacing: "-.02em" }}>

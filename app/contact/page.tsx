@@ -262,7 +262,7 @@ export default function ContactPage() {
             style={{ border: "1px solid rgba(120,194,225,.12)" }}
           />
 
-          <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-10">
+          <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 sm:py-20 flex flex-col md:flex-row items-center gap-10">
 
             {/* Text */}
             <div className="flex-1 text-center md:text-left anim-fade-up">
@@ -280,22 +280,22 @@ export default function ContactPage() {
               </p>
 
               {/* Quick contact chips */}
-              <div className="flex flex-wrap gap-3 mt-7 justify-center md:justify-start">
+              <div className="flex flex-wrap gap-2 mt-7 justify-center md:justify-start">
                 <a
                   href={`tel:${COMPANY.phones[0].replace(/\s/g, "")}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-all"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition-all min-w-0"
                   style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)" }}
                 >
-                  <Phone className="w-3.5 h-3.5" style={{ color: "#0088C1" }} />
-                  {COMPANY.phones[0]}
+                  <Phone className="w-3.5 h-3.5 shrink-0" style={{ color: "#0088C1" }} />
+                  <span className="truncate">{COMPANY.phones[0]}</span>
                 </a>
                 <a
                   href={`mailto:${COMPANY.email}`}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold text-white transition-all"
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-white transition-all min-w-0 max-w-full"
                   style={{ background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)" }}
                 >
-                  <Mail className="w-3.5 h-3.5" style={{ color: "#0088C1" }} />
-                  {COMPANY.email}
+                  <Mail className="w-3.5 h-3.5 shrink-0" style={{ color: "#0088C1" }} />
+                  <span className="truncate">{COMPANY.email}</span>
                 </a>
               </div>
             </div>
@@ -439,7 +439,7 @@ export default function ContactPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
 
               {/* Form header */}
-              <div className="px-8 pt-8 pb-6" style={{ borderBottom: "1px solid #f0f4f8" }}>
+              <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-6" style={{ borderBottom: "1px solid #f0f4f8" }}>
                 <div className="h-1 w-10 rounded-full mb-4" style={{ background: "#0088C1" }} />
                 <h2 className="text-2xl font-black text-gray-900" style={{ letterSpacing: "-.02em" }}>
                   Formulaire de contact
@@ -451,7 +451,7 @@ export default function ContactPage() {
 
               {/* Success state */}
               {submitted ? (
-                <div className="px-8 py-14 flex flex-col items-center text-center">
+                <div className="px-5 sm:px-8 py-10 sm:py-14 flex flex-col items-center text-center">
                   <div
                     className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
                     style={{ background: "rgba(16,185,129,.1)" }}
@@ -474,7 +474,7 @@ export default function ContactPage() {
                   </button>
                 </div>
               ) : (
-                <form ref={formRef} onSubmit={handleSubmit} noValidate className="px-8 py-7 space-y-5">
+                <form ref={formRef} onSubmit={handleSubmit} noValidate className="px-5 sm:px-8 py-6 sm:py-7 space-y-5">
 
                   {/* Row 1: Name + Email */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
