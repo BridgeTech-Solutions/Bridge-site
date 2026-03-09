@@ -88,8 +88,8 @@ export function Header() {
               src="/logo.png"
               alt="Bridge Technologies Solutions"
               width={160}
-              height={44}
-              className="object-contain h-11 w-auto"
+              height={48}
+              className="object-contain h-12 w-auto"
               priority
             />
           </Link>
