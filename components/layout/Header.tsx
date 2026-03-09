@@ -83,13 +83,13 @@ export function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-8">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center shrink-0 py-3">
+          <Link href="/" className="self-center shrink-0" style={{ display: "flex", alignItems: "center", padding: "10px 0" }}>
             <Image
               src="/logo.png"
               alt="Bridge Technologies Solutions"
               width={160}
               height={48}
-              className="object-contain h-12 w-auto"
+              style={{ height: "44px", width: "auto", display: "block" }}
               priority
             />
           </Link>
